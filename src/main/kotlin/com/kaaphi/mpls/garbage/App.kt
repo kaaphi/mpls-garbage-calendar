@@ -3,6 +3,7 @@ package com.kaaphi.mpls.garbage
 import biweekly.Biweekly
 import io.javalin.Javalin
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.util.*
 
 class App(private val port : Int, private val calendarConfig : Map<String,String>) {
@@ -27,10 +28,19 @@ class App(private val port : Int, private val calendarConfig : Map<String,String
 }
 
 fun main(args: Array<String>) {
-    val config = args.associate {
+    val config = mutableMapOf<String,String>()
+
+    System.getProperty("config")?.let {
+        File(it).forEachLine {
+            val split = it.split("=",limit = 2)
+            config[split[0]] = split[1]
+        }
+    }
+
+    config.putAll(args.associate {
         val split = it.split("=",limit = 2)
         Pair(split[0], split[1])
-    }
+    })
 
     System.out.println("Starting with args $config")
     App(7000, config).start()
